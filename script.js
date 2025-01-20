@@ -1,105 +1,57 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // Contact Form Handling
-    const form = document.getElementById("contact-form");
-    const nameInput = document.getElementById("name");
-    const emailInput = document.getElementById("email");
-    const messageInput = document.getElementById("message");
-
-    form.addEventListener("submit", (event) => {
-        event.preventDefault();
-
-        const name = sanitizeInput(nameInput.value);
-        const email = sanitizeInput(emailInput.value);
-        const message = sanitizeInput(messageInput.value);
-
-        clearErrors();
-
-        let isValid = true;
-        if (!name) {
-            showError(nameInput, "Name is required.");
-            isValid = false;
-        }
-        if (!email || !isValidEmail(email)) {
-            showError(emailInput, "Valid email is required.");
-            isValid = false;
-        }
-        if (!message) {
-            showError(messageInput, "Message cannot be empty.");
-            isValid = false;
-        }
-
-        if (isValid) {
-            saveMessage({ name, email, message });
-            sendWhatsAppMessage(name, email, message).catch(err => console.error(err));
-            displaySuccessMessage(`Thank you, ${name}! Your message has been sent successfully.`);
-            form.reset();
-        }
+document.addEventListener<"DOMContentLoaded", () => {
+    // ======================
+    // Smooth Scrolling
+    // ======================
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
     });
 
-    function sanitizeInput(input) {
-        return input.trim().replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    }
+    // ======================
+    // Dark/Light Mode Toggle
+    // ======================
+    const toggleButton = document.createElement('button');
+    toggleButton.textContent = 'Toggle Dark Mode';
+    toggleButton.classList.add('toggle-mode');
+    document.body.prepend(toggleButton);
 
-    function isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
+    toggleButton.addEventListener('click', () => {
+        document.body.classList.toggle('light-mode');
+    });
 
-    function showError(input, message) {
-        const error = document.createElement("small");
-        error.className = "error";
-        error.textContent = message;
-        input.classList.add("input-error");
-        input.parentNode.insertBefore(error, input.nextSibling);
-    }
+    // ======================
+    // Lazy Loading for Images
+    // ======================
+    const lazyImages = document.querySelectorAll('.lazy-load');
 
-    function clearErrors() {
-        const errors = document.querySelectorAll(".error");
-        errors.forEach(error => error.remove());
-
-        const inputs = document.querySelectorAll(".input-error");
-        inputs.forEach(input => input.classList.remove("input-error"));
-    }
-
-    function displaySuccessMessage(message) {
-        const successMessage = document.createElement("div");
-        successMessage.className = "success-message";
-        successMessage.textContent = message;
-        form.parentNode.insertBefore(successMessage, form);
-
-        setTimeout(() => {
-            successMessage.classList.add("fade-out");
-            successMessage.addEventListener("transitionend", () => successMessage.remove());
-        }, 3000);
-    }
-
-    function saveMessage(message) {
-        const contactMessages = JSON.parse(localStorage.getItem('contactMessages')) || [];
-        contactMessages.push(message);
-        localStorage.setItem('contactMessages', JSON.stringify(contactMessages));
-    }
-
-    function sendWhatsAppMessage(name, email, message) {
-        const phoneNumber = '256707319452'; // Your WhatsApp number in international format without '+'
-        const waMessage = 'Hello, you have a new message from ${name} (${email}): ${message}';
-        const encodedMessage = encodeURIComponent(waMessage);
-        const whatsappURL = 'https://wa.me/${phoneNumber}?text=${encodedMessage}';
-
-        return new Promise((resolve, reject) => {
-            window.open(whatsappURL, '_blank');
-            resolve();
+    const lazyLoad = (target) => {
+        const io = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.classList.remove('lazy-load');
+                    observer.unobserve(img);
+                }
+            });
         });
-    }
 
-    function getMessages() {
-        return JSON.parse(localStorage.getItem('contactMessages')) || [];
-    }
+        io.observe(target);
+    };
 
-    // Snowflakes
+    lazyImages.forEach(lazyLoad);
+
+    // ======================
+    //  thios is the Snowflakes Animation 
+    // ======================
     const createSnowflake = () => {
         const snowflake = document.createElement('div');
         snowflake.classList.add('snowflake');
-        snowflake.textContent = '❅';
+        snowflake.textContent = '❄️';
 
         const size = Math.random() * 15 + 15 + 'px';
         snowflake.style.width = size;
@@ -117,51 +69,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
     setInterval(createSnowflake, 200);
 
-    // Testimonials Slider
-    const slider = document.querySelector(".testimonials-slider");
-    let isDown = false;
-    let startX;
-    let scrollLeft;
-
-    const moveSlides = () => {
-        const totalWidth = slider.scrollWidth;
-        const visibleWidth = slider.clientWidth;
-        const maxScrollLeft = totalWidth - visibleWidth;
-
-        if (slider.scrollLeft >= maxScrollLeft) {
-            slider.scrollLeft = 0;
-        } else {
-            slider.scrollLeft += visibleWidth;
-        }
-    };
-
-    let slideInterval = setInterval(moveSlides, 3000);
-
-    slider.addEventListener("mousedown", (e) => {
-        isDown = true;
-        startX = e.pageX - slider.offsetLeft;
-        scrollLeft = slider.scrollLeft;
-        clearInterval(slideInterval);
+    // ======================
+    // IndexedDB with Dexie.js
+    // ======================
+    
+  // ======================
+    // IndexedDB Setup
+    // ======================
+    const db = new Dexie("MyDatabase");
+    db.version(1).stores({
+        users: "++id, name, email, message",
     });
 
-    slider.addEventListener("mouseleave", () => {
-        isDown = false;
-        slideInterval = setInterval(moveSlides, 3000);
+    // ======================
+    // Contact Form Handling with IndexedDB
+    // ======================
+    const form = document.getElementById("contact-form");
+    const nameInput = document.getElementById("name");
+    const emailInput = document.getElementById("email");
+    const messageInput = document.getElementById("message");
+
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        // Sanitize inputs
+        const name = sanitizeInput(nameInput.value);
+        const email = sanitizeInput(emailInput.value);
+        const message = sanitizeInput(messageInput.value);
+
+        // Add the data to IndexedDB
+        db.users.add({ name, email, message }).then(() => {
+            alert("Your message has been saved in the browser!");
+            form.reset();
+        }).catch((error) => {
+            console.error("Error saving message to IndexedDB:", error);
+        });
     });
 
-    slider.addEventListener("mouseup", () => {
-        isDown = false;
-        slideInterval = setInterval(moveSlides, 3000);
-    });
+    // Sanitize inputs to prevent script injection
+    function sanitizeInput(input) {
+        const div = document.createElement("div");
+        div.textContent = input;
+        return div.innerHTML;
+    }
 
-    slider.addEventListener("mousemove", (e) => {
-        if (!isDown) return;
-        e.preventDefault();
-        const x = e.pageX - slider.offsetLeft;
-        const walk = (x - startX) * 3;
-        slider.scrollLeft = scrollLeft - walk;
-    });
-
-    // Log stored messages
-    console.log(getMessages());
-});
+    // ======================
+    // LocalStorage Example
+    // ======================
+    // Save data to localStorage
+    localStorage.setItem("defaultUser", "Mugisha Michael");
+    const defaultUser = localStorage.getItem("defaultUser");
+    console.log("Default User from LocalStorage:", defaultUser);
+}
