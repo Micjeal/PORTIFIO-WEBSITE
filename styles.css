@@ -300,7 +300,7 @@ nav a:hover {
 .testimonials-section {
     background-color: #1a1a1a;
     color: #ffffff;
-    padding: 40px 0;
+    padding: 40px 20px; /* Added padding for better spacing */
     border-radius: 10px;
     overflow: hidden;
     position: relative;
@@ -311,13 +311,13 @@ nav a:hover {
 .testimonials-section h2 {
     text-align: center;
     font-size: 2rem;
-    margin-bottom: 20px;
+    margin-bottom: 30px; /* Adjusted spacing */
 }
 
 .testimonials-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); /* Updated min size for better responsiveness */
+    gap: 20px; /* Spacing between grid items */
     padding: 0 20px;
 }
 
@@ -328,6 +328,8 @@ nav a:hover {
     text-align: center;
     box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    max-width: 350px; /* Limit the max width */
+    margin: 0 auto; /* Center align items within the grid */
 }
 
 .testimonial-item:hover {
@@ -338,8 +340,8 @@ nav a:hover {
 }
 
 .testimonial-image {
-    width: 100px;
-    height: 100px;
+    width: 80px; /* Reduced size */
+    height: 80px; /* Reduced size */
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 10px;
@@ -355,13 +357,25 @@ nav a:hover {
     font-size: 1.25rem;
     color: #007bff;
     margin-top: 10px;
-    margin-bottom: 0;
+    margin-bottom: 5px; /* Adjusted spacing */
 }
 
 .testimonial-item p + p {
     font-size: 0.875rem;
     color: #666;
 }
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+    .testimonials-section h2 {
+        font-size: 1.5rem;
+    }
+
+    .testimonial-item {
+        padding: 15px;
+    }
+}
+
 
 /* Contact Section */
 .contact-section {
